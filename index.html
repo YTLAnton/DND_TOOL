@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D 5E 命定職業心理測驗</title>
+    <!-- 引入 FontAwesome 用於圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #c0392b; /* 龍息紅 */
+            --secondary-color: #2c3e50; /* 深岩灰 */
+            --accent-color: #f1c40f; /* 金幣黃 */
+            --text-color: #ecf0f1;
+            --bg-color: #1a1a1d;
+            --card-bg: #2d3436;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4b130f, #2c3e50);
+            width: 100%;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        p.subtitle {
+            color: #bdc3c7;
+            margin-top: 0.5rem;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 2rem auto;
+            flex: 1;
+        }
+
+        /* Start Screen */
+        #start-screen {
+            text-align: center;
+            padding: 3rem;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            margin-top: 2rem;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background-color: #e74c3c;
+            transform: scale(1.05);
+        }
+
+        /* Quiz Container */
+        #quiz-container {
+            display: none;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #444;
+            border-radius: 5px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .option-btn {
+            background-color: #34495e;
+            color: var(--text-color);
+            border: 1px solid #4a69bd;
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+        }
+
+        .option-btn:hover {
+            background-color: #4a69bd;
+            transform: translateX(5px);
+        }
+
+        /* Result Screen */
+        #result-screen {
+            display: none;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border-top: 5px solid var(--accent-color);
+        }
+
+        .class-icon {
+            font-size: 4rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+
+        .result-title {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-subtitle {
+            font-size: 1.2rem;
+            color: #bdc3c7;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .result-desc {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            text-align: left;
+            background: rgba(0,0,0,0.2);
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+
+        .subclass-box {
+            text-align: left;
+            margin-top: 2rem;
+            border-top: 1px solid #555;
+            padding-top: 1rem;
+        }
+
+        .subclass-title {
+            color: var(--accent-color);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .subclass-item {
+            margin-bottom: 1rem;
+        }
+        
+        .subclass-item strong {
+            color: #fff;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            padding-bottom: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fas fa-dice-d20"></i> D&D 5E 職業適性測驗</h1>
+    <p class="subtitle">回答 25 個問題，探索你在費倫大陸的真實樣貌</p>
+</header>
+
+<div class="container">
+    <!-- Start Screen -->
+    <div id="start-screen">
+        <h2>準備好踏上冒險了嗎？</h2>
+        <p>這份測驗將根據你的決策風格、戰鬥偏好與價值觀，從 D&D 5E 的 12 個基礎職業中找出最適合你的一個。</p>
+        <p>資料參考來源：5eclone.pingstudio.tw</p>
+        <button class="btn" onclick="startQuiz()">開始測驗</button>
+    </div>
+
+    <!-- Quiz Container -->
+    <div id="quiz-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div id="question-box">
+            <h3 class="question-text" id="question-text">題目載入中...</h3>
+            <div class="options-grid" id="options-box">
+                <!-- Options will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen">
+        <div class="result-card">
+            <div class="class-icon" id="result-icon"><i class="fas fa-fist-raised"></i></div>
+            <h2 class="result-title" id="result-title">職業名稱</h2>
+            <p class="result-subtitle" id="result-flavor">職業風味描述</p>
+            
+            <div class="result-desc" id="result-description">
+                詳細描述...
+            </div>
+
+            <div class="subclass-box">
+                <h3 class="subclass-title">推薦子職業（Archetypes）</h3>
+                <div id="subclass-recommendations">
+                    <!-- Subclasses injected here -->
+                </div>
+            </div>
+
+            <button class="btn" onclick="restartQuiz()">重新測驗</button>
+            <br><br>
+            <a href="https://5eclone.pingstudio.tw/classes.html" target="_blank" style="color: var(--accent-color);">查看完整職業規則</a>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <p>Designed based on D&D 5E Rules.</p>
+</div>
+
+<script>
+    // 職業代碼: 
+    // barbarian(野蠻人), bard(吟遊詩人), cleric(牧師), druid(德魯伊), fighter(戰士), monk(武僧), 
+    // paladin(聖武士), ranger(遊俠), rogue(盜賊), sorcerer(術士), warlock(契術師), wizard(法師)
+
+    const questions = [
+        {
+            text: "1. 當你遇到一扇深鎖的厚重木門，而門後可能藏有寶藏，你的第一直覺是？",
+            options: [
+                { text: "一腳踹開它！省時省力。", scores: { barbarian: 3, fighter: 1, paladin: 1 } },
+                { text: "拿出開鎖工具，安靜且優雅地打開它。", scores: { rogue: 3, bard: 1, ranger: 1 } },
+                { text: "施展魔法將鎖融化或傳送進去。", scores: { wizard: 2, sorcerer: 2, warlock: 1 } },
+                { text: "仔細觀察周圍是否有機關或鑰匙。", scores: { monk: 2, cleric: 1, druid: 1 } }
+            ]
+        },
+        {
+            text: "2. 在戰鬥中，你更喜歡站在什麼位置？",
+            options: [
+                { text: "衝在最前線，與敵人面對面肉搏。", scores: { barbarian: 3, fighter: 2, paladin: 2, monk: 1 } },
+                { text: "站在後方，用強大的法術轟炸敵人。", scores: { wizard: 3, sorcerer: 3, warlock: 2 } },
+                { text: "遊走於戰場邊緣，尋找偷襲或射擊的機會。", scores: { rogue: 3, ranger: 3, monk: 1 } },
+                { text: "在隊伍中間，隨時準備治療隊友或支援戰局。", scores: { cleric: 3, bard: 2, druid: 2 } }
+            ]
+        },
+        {
+            text: "3. 你的力量來源是什麼？",
+            options: [
+                { text: "透過經年累月的嚴格鍛鍊與武藝修習。", scores: { fighter: 3, monk: 3, rogue: 1 } },
+                { text: "與生俱來的血統或天賦。", scores: { sorcerer: 3, barbarian: 1 } },
+                { text: "來自神祇、大自然或崇高誓言的賜福。", scores: { cleric: 3, paladin: 3, druid: 3, warlock: 1 } },
+                { text: "透過研讀古籍與知識獲得的奧秘。", scores: { wizard: 3, bard: 1 } }
+            ]
+        },
+        {
+            text: "4. 如果隊友受了重傷倒地，你會怎麼做？",
+            options: [
+                { text: "立刻施展治癒法術，這是我的職責。", scores: { cleric: 3, druid: 2, bard: 1, paladin: 1 } },
+                { text: "站在他身前，擋下所有攻擊，保護他撤退。", scores: { paladin: 3, fighter: 2, barbarian: 2 } },
+                { text: "憤怒地將傷害他的敵人撕成碎片。", scores: { barbarian: 3, warlock: 1 } },
+                { text: "使用藥水或急救包，或者用魔法道具。", scores: { rogue: 1, ranger: 1, artificer: 1 } }
+            ]
+        },
+        {
+            text: "5. 你最喜歡在哪種環境下冒險？",
+            options: [
+                { text: "茂密的森林或荒野，遠離文明。", scores: { druid: 3, ranger: 3, barbarian: 2 } },
+                { text: "繁華的城市，充滿人群與政治鬥爭。", scores: { bard: 3, rogue: 2, wizard: 1 } },
+                { text: "陰暗的地下城或古代遺跡。", scores: { rogue: 2, fighter: 1, warlock: 1 } },
+                { text: "神聖的神殿或修道院。", scores: { cleric: 3, paladin: 2, monk: 2 } }
+            ]
+        },
+        {
+            text: "6. 面對一個強大的惡魔領主，你會試圖？",
+            options: [
+                { text: "與它簽訂契約，換取更強大的力量。", scores: { warlock: 3, sorcerer: 1 } },
+                { text: "以神聖的光芒將它淨化驅逐。", scores: { paladin: 3, cleric: 3 } },
+                { text: "分析它的弱點，用針對性的法術攻擊。", scores: { wizard: 3, ranger: 1 } },
+                { text: "嘲笑它，干擾它的注意力，讓隊友進攻。", scores: { bard: 3, rogue: 1 } }
+            ]
+        },
+        {
+            text: "7. 你認為什麼是解決問題的最佳工具？",
+            options: [
+                { text: "一把鋒利的大斧或巨劍。", scores: { barbarian: 3, fighter: 2 } },
+                { text: "一本寫滿咒語的法術書。", scores: { wizard: 3 } },
+                { text: "三寸不爛之舌與個人魅力。", scores: { bard: 3, sorcerer: 2, warlock: 1 } },
+                { text: "敏銳的直覺與隱密的行動。", scores: { rogue: 3, ranger: 2, monk: 1 } }
+            ]
+        },
+        {
+            text: "8. 休息時間（長休）你通常在做什麼？",
+            options: [
+                { text: "保養武器和盔甲，保持最佳狀態。", scores: { fighter: 2, paladin: 2 } },
+                { text: "祈禱、冥想，或與自然連結。", scores: { cleric: 2, monk: 2, druid: 2 } },
+                { text: "演奏樂器，說故事娛樂大家。", scores: { bard: 3 } },
+                { text: "研讀魔法卷軸或與你的守護靈溝通。", scores: { wizard: 2, warlock: 2 } }
+            ]
+        },
+        {
+            text: "9. 你對於「法律」與「規則」的看法是？",
+            options: [
+                { text: "規則必須被遵守，秩序是社會的基石。", scores: { paladin: 3, monk: 2, cleric: 1 } },
+                { text: "規則是參考用的，看情況打破它。", scores: { rogue: 3, bard: 2, warlock: 1 } },
+                { text: "我不關心人類的法律，我只遵循自然的法則。", scores: { druid: 3, barbarian: 2, ranger: 1 } },
+                { text: "只要能達成目的，規則並不重要。", scores: { sorcerer: 1, warlock: 1 } }
+            ]
+        },
+        {
+            text: "10. 如果你能變成一種動物，你想變成？",
+            options: [
+                { text: "巨熊或猛虎，充滿力量。", scores: { druid: 3, barbarian: 2 } },
+                { text: "老鷹或獵鷹，視野遼闊。", scores: { ranger: 2, monk: 1 } },
+                { text: "毒蛇或黑貓，隱密危險。", scores: { rogue: 2, warlock: 1 } },
+                { text: "我不變身，我召喚神聖的靈體。", scores: { cleric: 1, paladin: 1 } }
+            ]
+        },
+        {
+            text: "11. 你的戰鬥風格傾向於？",
+            options: [
+                { text: "簡單粗暴，攻擊就是最好的防禦。", scores: { barbarian: 3, fighter: 1 } },
+                { text: "千變萬化，使用各種道具與法術控場。", scores: { wizard: 2, bard: 2, druid: 1 } },
+                { text: "精準致命，追求一擊必殺。", scores: { rogue: 3, paladin: 1, ranger: 1 } },
+                { text: "連綿不絕，用快速的拳腳壓制對手。", scores: { monk: 3 } }
+            ]
+        },
+        {
+            text: "12. 當你需要情報時，你會？",
+            options: [
+                { text: "去酒館請大家喝酒，聽聽流言蜚語。", scores: { bard: 3, rogue: 1 } },
+                { text: "跟蹤目標，潛入他們的房間。", scores: { rogue: 3, ranger: 1 } },
+                { text: "使用預言法術直接詢問超自然存在。", scores: { cleric: 2, wizard: 1, warlock: 1 } },
+                { text: "抓住一個舌頭（俘虜），逼問他。", scores: { barbarian: 2, fighter: 1 } }
+            ]
+        },
+        {
+            text: "13. 你最痛恨的敵人是？",
+            options: [
+                { text: "破壞自然平衡的怪物。", scores: { druid: 3, ranger: 3 } },
+                { text: "不死生物與褻瀆神靈者。", scores: { cleric: 3, paladin: 3 } },
+                { text: "愚蠢且沒有榮譽感的強盜。", scores: { fighter: 1, monk: 1 } },
+                { text: "任何阻礙我獲得知識或力量的人。", scores: { wizard: 1, warlock: 2 } }
+            ]
+        },
+        {
+            text: "14. 在隊伍中，你是什麼角色？",
+            options: [
+                { text: "隊長/發言人。", scores: { paladin: 2, bard: 2 } },
+                { text: "智囊團/百科全書。", scores: { wizard: 3, cleric: 1 } },
+                { text: "斥候/探路者。", scores: { ranger: 3, rogue: 2 } },
+                { text: "打手/保鑣。", scores: { barbarian: 2, fighter: 2 } }
+            ]
+        },
+        {
+            text: "15. 對於魔法物品，你比較喜歡？",
+            options: [
+                { text: "一把會燃燒的魔法巨劍。", scores: { fighter: 2, barbarian: 2, paladin: 2 } },
+                { text: "一根能增強法術威力的法杖。", scores: { wizard: 2, sorcerer: 2, warlock: 1 } },
+                { text: "一件能隱形或飛行的斗篷。", scores: { rogue: 2, ranger: 1 } },
+                { text: "一個能召喚幫手或治癒傷口的護符。", scores: { cleric: 2, druid: 2 } }
+            ]
+        },
+        {
+            text: "16. 當你生氣時，你會？",
+            options: [
+                { text: "理智斷線，進入狂暴狀態。", scores: { barbarian: 3 } },
+                { text: "冷靜下來，策劃復仇。", scores: { rogue: 1, wizard: 1 } },
+                { text: "釋放破壞性的能量波。", scores: { sorcerer: 2, warlock: 1 } },
+                { text: "深呼吸，控制情緒。", scores: { monk: 3 } }
+            ]
+        },
+        {
+            text: "17. 你希望世人如何記住你？",
+            options: [
+                { text: "一個無人能敵的傳奇戰士。", scores: { fighter: 2, barbarian: 1 } },
+                { text: "一個通曉古今的大法師。", scores: { wizard: 3 } },
+                { text: "一個守護弱者與正義的聖徒。", scores: { paladin: 3, cleric: 2 } },
+                { text: "我的故事將在歌謠中被傳唱千年。", scores: { bard: 3 } }
+            ]
+        },
+        {
+            text: "18. 你是否有信仰？",
+            options: [
+                { text: "我即是神之手，執行神的意志。", scores: { cleric: 3, paladin: 2 } },
+                { text: "我尊重大自然與元素之靈。", scores: { druid: 3, barbarian: 1, ranger: 1 } },
+                { text: "我相信我自己，還有我的拳頭。", scores: { monk: 2, fighter: 1 } },
+                { text: "我與某個存在有個...協議。", scores: { warlock: 3 } }
+            ]
+        },
+        {
+            text: "19. 面對陷阱重重的地城，你的對策是？",
+            options: [
+                { text: "用高超的感知能力提前發現。", scores: { ranger: 2, monk: 1, cleric: 1 } },
+                { text: "派召喚生物或使魔去探路。", scores: { wizard: 1, warlock: 1, druid: 1 } },
+                { text: "我有特殊的技巧可以拆除它們。", scores: { rogue: 3 } },
+                { text: "硬扛過去，反正我不怕痛。", scores: { barbarian: 2 } }
+            ]
+        },
+        {
+            text: "20. 你的服裝風格通常是？",
+            options: [
+                { text: "重型板甲，閃閃發光。", scores: { paladin: 3, fighter: 2, cleric: 1 } },
+                { text: "輕便的皮甲，便於活動。", scores: { rogue: 2, ranger: 2, warlock: 1 } },
+                { text: "樸素的長袍或布衣。", scores: { wizard: 1, sorcerer: 1, monk: 2 } },
+                { text: "獸皮或以樹葉裝飾的服裝。", scores: { barbarian: 2, druid: 2 } }
+            ]
+        },
+        {
+            text: "21. 在魔法的使用上，你偏好？",
+            options: [
+                { text: "我不怎麼用魔法，武器比較實在。", scores: { fighter: 2, barbarian: 2, rogue: 1 } },
+                { text: "我能施展少數但威力強大的招式。", scores: { warlock: 2, sorcerer: 1 } },
+                { text: "我準備多種法術以應對不同情況。", scores: { wizard: 3, cleric: 1, druid: 1 } },
+                { text: "我用魔法來強化我的攻擊或魅惑敵人。", scores: { bard: 1, paladin: 1, ranger: 1 } }
+            ]
+        },
+        {
+            text: "22. 你的過去通常涉及？",
+            options: [
+                { text: "在荒野中獨自生存。", scores: { ranger: 3, barbarian: 1, druid: 1 } },
+                { text: "在學院或塔樓中學習。", scores: { wizard: 2, bard: 1 } },
+                { text: "在修道院或教會中長大。", scores: { monk: 2, cleric: 2, paladin: 1 } },
+                { text: "在街頭打滾，學習生存法則。", scores: { rogue: 2, sorcerer: 1 } }
+            ]
+        },
+        {
+            text: "23. 遇到無法戰勝的敵人時？",
+            options: [
+                { text: "犧牲自己斷後。", scores: { paladin: 2, fighter: 1 } },
+                { text: "施展傳送術帶大家跑。", scores: { wizard: 2, sorcerer: 1 } },
+                { text: "躲起來，等待時機。", scores: { rogue: 2, ranger: 1 } },
+                { text: "不可能！我絕不退縮！(然後戰死)", scores: { barbarian: 3 } }
+            ]
+        },
+        {
+            text: "24. 你對金錢的態度？",
+            options: [
+                { text: "錢是身外之物，夠用就好。", scores: { monk: 3, druid: 2 } },
+                { text: "越多越好，我喜歡亮晶晶的東西。", scores: { rogue: 2, warlock: 1, bard: 1 } },
+                { text: "我會捐給神殿或需要幫助的人。", scores: { cleric: 2, paladin: 2 } },
+                { text: "拿來買更好的裝備或施法材料。", scores: { wizard: 2, fighter: 1 } }
+            ]
+        },
+        {
+            text: "25. 最後，用一個詞形容你嚮往的冒險風格？",
+            options: [
+                { text: "熱血與榮耀。", scores: { fighter: 2, paladin: 2, barbarian: 2 } },
+                { text: "神秘與探索。", scores: { wizard: 2, warlock: 2, sorcerer: 2 } },
+                { text: "自由與自然。", scores: { druid: 2, ranger: 2, bard: 1 } },
+                { text: "信仰與奉獻。", scores: { cleric: 2, monk: 2 } }
+            ]
+        }
+    ];
+
+    // 職業資訊 (包含子職業建議)
+    const classInfo = {
+        barbarian: {
+            title: "野蠻人 (Barbarian)",
+            icon: "<i class='fas fa-axe'></i>",
+            flavor: "憤怒的化身，原始力量的展現者。",
+            desc: "你是一個依靠直覺與原始本能的戰士。你不需要繁雜的訓練或書本知識，你的力量來自內心的怒火。在戰場上，你是最堅韌的肉盾，也是最可怕的破壞者。",
+            subclasses: [
+                "<strong>狂戰士道途 (Path of the Berserker)</strong>：如果你享受純粹的暴力與無視痛苦的戰鬥。",
+                "<strong>圖騰勇士道途 (Path of the Totem Warrior)</strong>：如果你喜歡與動物靈體連結（如熊的忍耐力）。",
+                "<strong>先祖守衛道途 (Path of the Ancestral Guardian)</strong>：如果你想召喚祖靈來保護隊友。"
+            ]
+        },
+        bard: {
+            title: "吟遊詩人 (Bard)",
+            icon: "<i class='fas fa-music'></i>",
+            flavor: "戰場上的藝術家，用言語編織魔法。",
+            desc: "你相信言語和音樂擁有改變現實的力量。你多才多藝，能治療、能戰鬥、能施法，還擅長社交。你是隊伍的靈魂人物，總是能激勵同伴創造奇蹟。",
+            subclasses: [
+                "<strong>逸聞學院 (College of Lore)</strong>：如果你追求知識，想學習各個職業的法術。",
+                "<strong>勇氣學院 (College of Valor)</strong>：如果你想在戰鬥前線一邊揮劍一邊激勵隊友。",
+                "<strong>劍舞學院 (College of Swords)</strong>：如果你喜歡華麗的劍術表演與高機動性。"
+            ]
+        },
+        cleric: {
+            title: "牧師 (Cleric)",
+            icon: "<i class='fas fa-cross'></i>",
+            flavor: "諸神的代理人，生與死的掌控者。",
+            desc: "你是神祇在凡間的意志體現。雖然常被視為治療者，但你也擁有強大的神聖法術可以毀滅敵人。你穿著盔甲，手持戰錘與聖徽，是隊伍最堅實的後盾。",
+            subclasses: [
+                "<strong>生命領域 (Life Domain)</strong>：極致的治療者，確保隊友不死。",
+                "<strong>光榮/戰爭領域 (War Domain)</strong>：擅長重甲近戰的戰鬥祭司。",
+                "<strong>光明領域 (Light Domain)</strong>：使用神聖火焰轟炸敵人的施法者。"
+            ]
+        },
+        druid: {
+            title: "德魯伊 (Druid)",
+            icon: "<i class='fas fa-leaf'></i>",
+            flavor: "自然的守護者，變形與元素的操控者。",
+            desc: "你與大自然有著深刻的連結。你可以呼喚雷電、操控植物，甚至變身成野獸。你不在乎文明的法律，只維護自然的平衡。",
+            subclasses: [
+                "<strong>月亮結社 (Circle of the Moon)</strong>：專精於變身成強大的戰鬥野獸。",
+                "<strong>大地結社 (Circle of the Land)</strong>：專精於施展更多樣化的自然法術。",
+                "<strong>牧人結社 (Circle of the Shepherd)</strong>：擅長召喚動物與精類生物助戰。"
+            ]
+        },
+        fighter: {
+            title: "戰士 (Fighter)",
+            icon: "<i class='fas fa-shield-alt'></i>",
+            flavor: "武器大師，戰術與武藝的專家。",
+            desc: "你是受過嚴格訓練的戰鬥專家。無論是劍盾、雙手巨劍還是長弓，你都能運用自如。你擁有多樣的戰鬥風格與極高的攻擊頻率，是戰場上最穩定的輸出與防禦者。",
+            subclasses: [
+                "<strong>戰鬥大師 (Battle Master)</strong>：使用戰技骰來控制戰場、繳械或絆倒敵人。",
+                "<strong>勇士 (Champion)</strong>：追求極致的肉體與更高的爆擊率，簡單強大。",
+                "<strong>魔能騎士 (Eldritch Knight)</strong>：結合劍術與防護系法術的魔法戰士。"
+            ]
+        },
+        monk: {
+            title: "武僧 (Monk)",
+            icon: "<i class='fas fa-praying-hands'></i>",
+            flavor: "氣的修煉者，將肉體鍛鍊至極致。",
+            desc: "你不依賴武器或盔甲，你的拳頭與速度就是最強的武器。你運用「氣」來做出常人無法想像的動作，如飛簷走壁、接住箭矢或震懾敵人。",
+            subclasses: [
+                "<strong>散打宗 (Way of the Open Hand)</strong>：經典武僧，擅長擊倒與控制敵人。",
+                "<strong>暗影宗 (Way of Shadow)</strong>：如同忍者般在陰影中瞬移與潛行。",
+                "<strong>四象宗 (Way of the Four Elements)</strong>：運用氣來施展元素法術（如噴火、冰凍）。"
+            ]
+        },
+        paladin: {
+            title: "聖武士 (Paladin)",
+            icon: "<i class='fas fa-gavel'></i>",
+            flavor: "神聖誓言的實踐者，正義的鐵壁。",
+            desc: "你是一名發下神聖誓言的戰士。你的劍刃燃燒著至聖斬的光輝，你的光環庇護著身邊的盟友。你兼具戰鬥與治療能力，是邪惡生物的剋星。",
+            subclasses: [
+                "<strong>奉獻之誓 (Oath of Devotion)</strong>：經典的白騎士，代表榮譽、憐憫與正義。",
+                "<strong>復仇之誓 (Oath of Vengeance)</strong>：為了消滅罪惡不擇手段的冷酷執法者。",
+                "<strong>古老之誓 (Oath of the Ancients)</strong>：守護光亮與自然之美的綠色騎士。"
+            ]
+        },
+        ranger: {
+            title: "遊俠 (Ranger)",
+            icon: "<i class='fas fa-bow-arrow'></i>", // FontAwesome fix needed, using text usually
+            flavor: "荒野的獵手，邊境的巡邏者。",
+            desc: "你是文明邊緣的守望者，擅長追蹤、狩獵與伏擊。你結合了戰鬥技巧與自然魔法，通常還有動物夥伴相隨，或者精通雙刀與弓箭。",
+            subclasses: [
+                "<strong>獵人 (Hunter)</strong>：針對特定類型敵人（如巨人、群體）的殺手。",
+                "<strong>獸王 (Beast Master)</strong>：擁有一隻忠誠的動物夥伴與你並肩作戰。",
+                "<strong>幽域追蹤者 (Gloom Stalker)</strong>：擅長在黑暗與地底環境突襲的刺客。"
+            ]
+        },
+        rogue: {
+            title: "盜賊 (Rogue)",
+            icon: "<i class='fas fa-mask'></i>",
+            flavor: "陰影中的專家，精通技巧與弱點。",
+            desc: "你依賴狡詐、隱匿與精準來取勝。你不與敵人正面硬碰硬，而是尋找他們的死角進行「偷襲」。你也擅長解除陷阱、開鎖與各種實用技能。",
+            subclasses: [
+                "<strong>盜賊 (Thief)</strong>：擅長攀爬、使用道具與極致的靈活度。",
+                "<strong>刺客 (Assassin)</strong>：專精於偽裝、下毒與第一回合的爆發傷害。",
+                "<strong>詭術師 (Arcane Trickster)</strong>：使用幻術與附魔系法術輔助偷竊的魔法小偷。"
+            ]
+        },
+        sorcerer: {
+            title: "術士 (Sorcerer)",
+            icon: "<i class='fas fa-fire'></i>",
+            flavor: "天賦異稟的施法者，魔法是你的本能。",
+            desc: "你的魔法來自血脈或靈魂深處，而非學習。你可以透過「超魔」技巧來改變法術的型態（如雙重施法、瞬發法術）。你的爆發力極強，充滿魅力。",
+            subclasses: [
+                "<strong>龍脈血統 (Draconic Bloodline)</strong>：你的祖先是龍，賦予你龍鱗防禦與元素親和。",
+                "<strong>狂野魔法 (Wild Magic)</strong>：你的魔法不穩定，施法時可能引發隨機的混亂效果。",
+                "<strong>神聖靈魂 (Divine Soul)</strong>：你擁有神性，可以使用牧師法術。"
+            ]
+        },
+        warlock: {
+            title: "契術師 (Warlock)",
+            icon: "<i class='fas fa-skull'></i>",
+            flavor: "異界宗主的契約者，禁忌知識的探求者。",
+            desc: "你與某個強大的存在（如惡魔、精類或舊日支配者）簽訂了契約以換取力量。你的法術位很少但恢復快，且擁有專屬的「魔能祈喚」來客製化能力。",
+            subclasses: [
+                "<strong>邪魔宗主 (The Fiend)</strong>：與惡魔交易，獲得火焰法術與擊殺回復生命的能力。",
+                "<strong>舊日支配者 (The Great Old One)</strong>：與不可名狀之物交易，擅長心靈感應與精神控制。",
+                "<strong>六角之刃 (Hexblade)</strong>：與擁有意識的魔兵交易，成為擅長近戰的魔法劍士。"
+            ]
+        },
+        wizard: {
+            title: "法師 (Wizard)",
+            icon: "<i class='fas fa-hat-wizard'></i>",
+            flavor: "奧術的學者，現實規則的編寫者。",
+            desc: "你的力量來自長期的研讀與知識。你擁有最廣泛的法術列表與儀式施法能力。雖然身體脆弱，但只要給你時間準備，你可以應對任何情況。",
+            subclasses: [
+                "<strong>塑能學派 (School of Evocation)</strong>：專精於火球術等毀滅性魔法，且能保護隊友不受傷害。",
+                "<strong>防護學派 (School of Abjuration)</strong>：擅長製造護盾與反制敵人的魔法。",
+                "<strong>預言學派 (School of Divination)</strong>：能夠窺探未來，甚至替換骰子的結果（預兆骰）。"
+            ]
+        }
+    };
+
+    let currentQuestion = 0;
+    let scores = {
+        barbarian: 0, bard: 0, cleric: 0, druid: 0, fighter: 0, monk: 0,
+        paladin: 0, ranger: 0, rogue: 0, sorcerer: 0, warlock: 0, wizard: 0
+    };
+
+    function startQuiz() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-container').style.display = 'block';
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const q = questions[currentQuestion];
+        document.getElementById('question-text').innerText = q.text;
+        
+        const optionsBox = document.getElementById('options-box');
+        optionsBox.innerHTML = '';
+
+        q.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt.scores);
+            optionsBox.appendChild(btn);
+        });
+
+        updateProgress();
+    }
+
+    function selectOption(points) {
+        // Add scores
+        for (let cls in points) {
+            if (scores.hasOwnProperty(cls)) {
+                scores[cls] += points[cls];
+            }
+        }
+
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function updateProgress() {
+        const pct = ((currentQuestion) / questions.length) * 100;
+        document.getElementById('progress-fill').style.width = pct + '%';
+    }
+
+    function showResult() {
+        document.getElementById('quiz-container').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+
+        // Calculate winner
+        let maxScore = -1;
+        let winner = '';
+        
+        // Find highest score
+        for (let cls in scores) {
+            if (scores[cls] > maxScore) {
+                maxScore = scores[cls];
+                winner = cls;
+            } else if (scores[cls] === maxScore) {
+                // Simple tie-breaker: prioritize simpler classes for randomness or just keep first
+                // For this logic, we just keep the first one encountered or random could be added
+            }
+        }
+
+        const result = classInfo[winner];
+        
+        document.getElementById('result-icon').innerHTML = result.icon;
+        document.getElementById('result-title').innerText = result.title;
+        document.getElementById('result-flavor').innerText = result.flavor;
+        document.getElementById('result-description').innerText = result.desc;
+        
+        const subList = document.getElementById('subclass-recommendations');
+        subList.innerHTML = '';
+        result.subclasses.forEach(sub => {
+            const p = document.createElement('p');
+            p.className = 'subclass-item';
+            p.innerHTML = sub;
+            subList.appendChild(p);
+        });
+    }
+
+    function restartQuiz() {
+        currentQuestion = 0;
+        scores = {
+            barbarian: 0, bard: 0, cleric: 0, druid: 0, fighter: 0, monk: 0,
+            paladin: 0, ranger: 0, rogue: 0, sorcerer: 0, warlock: 0, wizard: 0
+        };
+        document.getElementById('result-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
