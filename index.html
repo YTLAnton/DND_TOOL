@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D&D 5E 命定職業心理測驗</title>
-    <!-- 引入 FontAwesome 用於圖示 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #c0392b; /* 龍息紅 */
-            --secondary-color: #2c3e50; /* 深岩灰 */
-            --accent-color: #f1c40f; /* 金幣黃 */
+            --primary-color: #c0392b;
+            --secondary-color: #2c3e50;
+            --accent-color: #f1c40f;
             --text-color: #ecf0f1;
             --bg-color: #1a1a1d;
             --card-bg: #2d3436;
@@ -31,21 +30,25 @@
         header {
             background: linear-gradient(135deg, #4b130f, #2c3e50);
             width: 100%;
-            padding: 2rem 1rem;
+            /* 調整 padding 讓 header 不會過高 */
+            padding: 1.5rem 1rem;
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             border-bottom: 3px solid var(--accent-color);
+            box-sizing: border-box; /* 確保 padding 不會撐爆寬度 */
         }
 
         h1 {
             margin: 0;
             font-size: 2.5rem;
             text-shadow: 2px 2px 4px #000;
+            line-height: 1.2; /* 避免標題多行時黏在一起 */
         }
 
         p.subtitle {
             color: #bdc3c7;
             margin-top: 0.5rem;
+            font-size: 1rem;
         }
 
         .container {
@@ -53,15 +56,22 @@
             max-width: 800px;
             margin: 2rem auto;
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 讓內容在垂直方向也居中 */
         }
 
-        /* Start Screen */
-        #start-screen {
-            text-align: center;
-            padding: 3rem;
+        /* 卡片共用樣式 */
+        #start-screen, #quiz-container, .result-card {
             background-color: var(--card-bg);
             border-radius: 15px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            /* 預設 padding */
+            padding: 3rem; 
+        }
+
+        #start-screen {
+            text-align: center;
         }
 
         .btn {
@@ -75,6 +85,8 @@
             transition: transform 0.2s, background-color 0.2s;
             margin-top: 2rem;
             font-weight: bold;
+            width: 100%; /* 手機上按鈕滿版比較好按 */
+            max-width: 300px; /* 電腦上限制最大寬度 */
         }
 
         .btn:hover {
@@ -85,10 +97,6 @@
         /* Quiz Container */
         #quiz-container {
             display: none;
-            background-color: var(--card-bg);
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             position: relative;
         }
 
@@ -130,9 +138,10 @@
             cursor: pointer;
             transition: all 0.2s;
             font-size: 1.1rem;
+            line-height: 1.4; /* 增加行高，閱讀舒適 */
         }
 
-        .option-btn:hover {
+        .option-btn:hover, .option-btn:active {
             background-color: #4a69bd;
             transform: translateX(5px);
         }
@@ -149,11 +158,7 @@
         }
 
         .result-card {
-            background-color: var(--card-bg);
-            border-radius: 15px;
-            padding: 3rem;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             border-top: 5px solid var(--accent-color);
         }
 
@@ -201,10 +206,13 @@
 
         .subclass-item {
             margin-bottom: 1rem;
+            line-height: 1.5;
         }
         
         .subclass-item strong {
             color: #fff;
+            display: block; /* 讓子職業名稱自己一行，比較清楚 */
+            margin-bottom: 0.2rem;
         }
 
         .footer {
@@ -215,9 +223,55 @@
             padding-bottom: 2rem;
         }
 
+        /* ------------------------------------------- */
+        /* [Antigravity] RWD 核心調整區 (Media Queries) */
+        /* ------------------------------------------- */
+        
+        /* 平板與桌面 (大於 768px) */
         @media (min-width: 768px) {
             .options-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr 1fr; /* 選項變兩欄 */
+            }
+        }
+
+        /* 手機版 (小於 600px) */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem; /* 標題縮小 */
+            }
+
+            .container {
+                width: 95%; /* 手機版兩側留白減少 */
+                margin: 1rem auto;
+            }
+
+            /* 卡片內距大幅減少，把空間留給內容 */
+            #start-screen, #quiz-container, .result-card {
+                padding: 1.5rem 1rem; 
+            }
+
+            .question-text {
+                font-size: 1.2rem; /* 題目字體稍微縮小 */
+                margin-bottom: 1.5rem;
+            }
+
+            .option-btn {
+                padding: 1rem; /* 按鈕內距稍微縮小 */
+                font-size: 1rem;
+            }
+
+            .result-title {
+                font-size: 2rem;
+            }
+
+            .result-desc {
+                padding: 1rem; /* 結果描述框內距減少 */
+                font-size: 1rem;
+            }
+            
+            /* 讓子職業名稱與描述分行顯示的間距 */
+            .subclass-item {
+                font-size: 0.95rem;
             }
         }
     </style>
@@ -230,15 +284,12 @@
 </header>
 
 <div class="container">
-    <!-- Start Screen -->
     <div id="start-screen">
         <h2>準備好踏上冒險了嗎？</h2>
         <p>這份測驗將根據你的決策風格、戰鬥偏好與價值觀，從 D&D 5E 的 12 個基礎職業中找出最適合你的一個。</p>
-        <p>資料參考來源：5eclone.pingstudio.tw</p>
         <button class="btn" onclick="startQuiz()">開始測驗</button>
     </div>
 
-    <!-- Quiz Container -->
     <div id="quiz-container">
         <div class="progress-bar">
             <div class="progress-fill" id="progress-fill"></div>
@@ -246,12 +297,10 @@
         <div id="question-box">
             <h3 class="question-text" id="question-text">題目載入中...</h3>
             <div class="options-grid" id="options-box">
-                <!-- Options will be injected here -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- Result Screen -->
     <div id="result-screen">
         <div class="result-card">
             <div class="class-icon" id="result-icon"><i class="fas fa-fist-raised"></i></div>
@@ -265,13 +314,11 @@
             <div class="subclass-box">
                 <h3 class="subclass-title">推薦子職業（Archetypes）</h3>
                 <div id="subclass-recommendations">
-                    <!-- Subclasses injected here -->
-                </div>
+                    </div>
             </div>
 
             <button class="btn" onclick="restartQuiz()">重新測驗</button>
             <br><br>
-            <a href="https://5eclone.pingstudio.tw/classes.html" target="_blank" style="color: var(--accent-color);">查看完整職業規則</a>
         </div>
     </div>
 </div>
